@@ -28,6 +28,6 @@ jobs:
        with:
          context: DockerfileFolder/
          push: true
-         tags: design399/crm_docker:latest
+         tags: docker push design399/crm_docker:latest
          
          
