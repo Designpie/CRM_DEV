@@ -1,4 +1,4 @@
-name: Build and Push Docker image to Docker Hub
+name: Build, Push, and Deploy Docker image to Docker Hub
 
 on:
   push:
@@ -29,5 +29,7 @@ jobs:
          context: DockerfileFolder/
          push: true
          tags: design399/crm_docker:latest
+
+    
          
          
