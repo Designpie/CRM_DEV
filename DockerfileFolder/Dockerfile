@@ -9,6 +9,8 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     libonig-dev \
     libxml2-dev \
+    unzip \
+    git \
     && apt-get clean
 
 # Install PHP extensions
@@ -26,7 +28,7 @@ COPY . /var/www/html
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Install project dependencies
-RUN composer install
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
 # Install Node.js and npm
 RUN apt-get install -y nodejs npm \
