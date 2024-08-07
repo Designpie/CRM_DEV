@@ -32,27 +32,24 @@ jobs:
       - name: Deploy to Dev
         if: github.ref == 'refs/heads/main'
         run: |
+          docker run -d -p 8080:80 --name dev_container design399/crm_docker:latest
           echo "Deploying to Dev environment"
-          docker pull design399/crm_docker:latest
-          docker run -d -p 80:80 --name dev_container design399/crm_docker:latest
         env:
           ENVIRONMENT: dev
 
       - name: Deploy to Q/A
         if: github.ref == 'refs/heads/main'
         run: |
+          docker run -d -p 8081:80 --name qa_container design399/crm_docker:latest
           echo "Deploying to Q/A environment"
-          docker pull design399/crm_docker:latest
-          docker run -d -p 80:80 --name qa_container design399/crm_docker:latest
         env:
           ENVIRONMENT: qa
 
       - name: Deploy to Production
         if: github.ref == 'refs/heads/main'
         run: |
+          docker run -d -p 8082:80 --name prod_container design399/crm_docker:latest
           echo "Deploying to Production environment"
-          docker pull design399/crm_docker:latest
-          docker run -d -p 80:80 --name prod_container design399/crm_docker:latest
         env:
           ENVIRONMENT: production
 
