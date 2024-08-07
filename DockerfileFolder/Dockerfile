@@ -28,7 +28,7 @@ COPY . /var/www/html
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Install project dependencies
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader || { echo 'Composer install failed'; exit 1; }
 
 # Install Node.js and npm
 RUN apt-get install -y nodejs npm \
