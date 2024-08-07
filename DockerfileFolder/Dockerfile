@@ -12,8 +12,7 @@ RUN apt-get update && apt-get install -y \
     libjpeg-dev \
     libfreetype6-dev \
     libzip-dev \
-    libonig-dev \
-    libxml2-dev
+    libonig-dev
 
 # Install PHP extensions
 RUN docker-php-ext-install pdo_mysql
@@ -34,10 +33,18 @@ COPY . /var/www/html
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Install project dependencies
-RUN composer install
+COPY composer.json composer.lock ./
+RUN composer install --no-scripts --no-autoloader
 
 # Install Node.js dependencies
+COPY package.json package-lock.json ./
 RUN npm install
+
+# Copy the rest of the application code
+COPY . .
+
+# Generate autoloader
+RUN composer dump-autoload --optimize
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html
