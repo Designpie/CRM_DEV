@@ -1,22 +1,31 @@
+# Use the official PHP image as a base image
 FROM php:8.1-apache
 
+# Install dependencies and PHP extensions
 RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     git \
     unzip \
-    && docker-php-ext-install mbstring xml pdo pdo_mysql
+    && docker-php-ext-install mbstring xml
 
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Install Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-WORKDIR /var/www/html
+# Copy application source code to the container
+COPY . /var/www/html/
 
-COPY . .
+# Set the working directory
+WORKDIR /var/www/html/
 
-RUN composer install --no-dev --optimize-autoloader
+# Install Composer dependencies if composer.json exists
+RUN if [ -f "composer.json" ]; then composer install --no-dev --optimize-autoloader; fi
 
+# Set proper permissions
 RUN chown -R www-data:www-data /var/www/html
 
+# Expose the default port
 EXPOSE 80
 
+# Start Apache
 CMD ["apache2-foreground"]
