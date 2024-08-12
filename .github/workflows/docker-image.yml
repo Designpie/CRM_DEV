@@ -1,58 +1,78 @@
-name: Build, Push, Pull, and Deploy Docker image to Docker Hub
+name: Build, Test, Push, and Deploy Docker image
+
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
 jobs:
-  deploy:
+  build-and-test:
     runs-on: ubuntu-latest
-    environment: production  # Default environment; will be overridden by deployment steps
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      
-      - name: Set up PHP
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y php php-cli php-mbstring php-xml
-      
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v4
-        with:
-          context: DockerfileFolder/
-          push: true
-          tags: design399/crm_docker:latest
-      
-      - name: Deploy to Dev
-        if: github.ref == 'refs/heads/main'
-        run: |
-          docker run -d -p 8080:80 --name dev_container design399/crm_docker:latest
-          echo "Deploying to Dev environment"
-        env:
-          ENVIRONMENT: dev
+    - uses: actions/checkout@v2
 
-      - name: Deploy to Q/A
-        if: github.ref == 'refs/heads/main'
-        run: |
-          docker run -d -p 8081:80 --name qa_container design399/crm_docker:latest
-          echo "Deploying to Q/A environment"
-        env:
-          ENVIRONMENT: qa
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
 
-      - name: Deploy to Production
-        if: github.ref == 'refs/heads/main'
-        run: |
-          docker run -d -p 8082:80 --name prod_container design399/crm_docker:latest
-          echo "Deploying to Production environment"
-        env:
-          ENVIRONMENT: production
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress --no-suggest
 
-    
-         
-         
+    - name: Run tests
+      run: vendor/bin/phpunit
+
+    - name: Build Docker image
+      run: docker build -t design399/crm_docker:${{ github.sha }} .
+
+    - name: Run container tests
+      run: |
+        docker run --name test_container -d -p 8080:80 design399/crm_docker:${{ github.sha }}
+        sleep 10
+        curl -sSf http://localhost:8080 || exit 1
+        docker stop test_container
+
+  push-and-deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build and push Docker image
+      run: |
+        docker build -t design399/crm_docker:${{ github.sha }} .
+        docker push design399/crm_docker:${{ github.sha }}
+
+    - name: Deploy to Dev
+      env:
+        APP_ENV: dev
+        PORT: 8080
+        TAG: ${{ github.sha }}
+      run: |
+        docker-compose up -d
+        echo "Deployed to Dev environment"
+
+    - name: Deploy to QA
+      env:
+        APP_ENV: qa
+        PORT: 8081
+        TAG: ${{ github.sha }}
+      run: |
+        docker-compose up -d
+        echo "Deployed to QA environment"
+
+    - name: Deploy to Production
+      env:
+        APP_ENV: production
+        PORT: 8082
+        TAG: ${{ github.sha }}
+      run: |
+        docker-compose up -d
+        echo "Deployed to Production environment"
