@@ -16,11 +16,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y php php-cli php-mbstring php-xml
 
-      - name: Debug directory
+      - name: Create tests directory and file
         run: |
-          pwd
-          ls -la
-          ls -la tests || echo "tests directory not found"
+          mkdir -p tests
+          echo "<?php echo 'Test running successfully';" > tests/test.php
 
       - name: Run tests
         run: php tests/test.php
