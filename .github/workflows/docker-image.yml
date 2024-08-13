@@ -5,7 +5,7 @@ on:
     branches: [ "main" ]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build:
@@ -36,23 +36,6 @@ jobs:
         context: .
         push: true
         tags: design399/crm_docker:latest
-    
-    - name: Ensure .cpanel.yml exists
-      run: |
-        if [ ! -f .cpanel.yml ]; then
-          echo "---
-
----
-deployment:
-  tasks:
-    - export DEPLOYPATH=/home/electgcs/electronicdevices.co.za/production
-    - /bin/cp -R . \$DEPLOYPATH" > .cpanel.yml
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add .cpanel.yml
-          git commit -m "Add .cpanel.yml for cPanel deployment" || echo "No changes to commit"
-          git push
-        fi
 
   deploy-dev:
     needs: build
