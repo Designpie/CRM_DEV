@@ -63,6 +63,23 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Check for .cpanel.yml
+        run: |
+          if [ ! -f .cpanel.yml ]; then
+            echo ".cpanel.yml file not found. Deployment cannot proceed."
+            exit 1
+          fi
+
+      - name: Check for uncommitted changes
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "There are uncommitted changes. Deployment cannot proceed."
+            exit 1
+          fi
+
       - name: Deploy to Production (Docker)
         run: |
           docker run -d -p 8082:80 --name prod_container design399/crm_docker:latest
