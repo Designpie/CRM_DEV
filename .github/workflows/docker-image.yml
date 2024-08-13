@@ -74,3 +74,26 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: ${{ secrets.FTP_SERVER_DIR }}/
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Commit .cpanel.yml if not exists
+        run: |
+          if [ ! -f .cpanel.yml ]; then
+            echo "---
+            deployment:
+              tasks:
+                - export DEPLOYPATH=/home/username/public_html/
+                - /bin/cp -R * $DEPLOYPATH" > .cpanel.yml
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            git add .cpanel.yml
+            git commit -m "Add .cpanel.yml for cPanel deployment" || echo "No changes to commit"
+          fi
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
