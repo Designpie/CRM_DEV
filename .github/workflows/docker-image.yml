@@ -1,8 +1,13 @@
-name: Build, Push, Pull, and Deploy Docker image to Docker Hub
+name: Build, Push, Pull, and Deploy Docker image to Docker Hub and cPanel
+
 on:
   push:
     branches:
       - main
+
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,10 +19,12 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y php php-cli php-mbstring php-xml
+      
       - name: Create tests directory and file
         run: |
           mkdir -p tests
           echo "<?php echo 'Test running successfully';" > tests/test.php
+      
       - name: Run tests
         run: php tests/test.php
       
@@ -33,6 +40,21 @@ jobs:
           context: DockerfileFolder/
           push: true
           tags: design399/crm_docker:latest
+
+      - name: Ensure .cpanel.yml exists
+        run: |
+          if [ ! -f .cpanel.yml ]; then
+            echo "---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/username/public_html/
+    - /bin/cp -R . \$DEPLOYPATH" > .cpanel.yml
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            git add .cpanel.yml
+            git commit -m "Add .cpanel.yml for cPanel deployment" || echo "No changes to commit"
+            git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }}
+          fi
 
   deploy-dev:
     needs: build
@@ -61,12 +83,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
+      
       - name: Deploy to Production (Docker)
         run: |
           docker run -d -p 8082:80 --name prod_container design399/crm_docker:latest
           echo "Deploying to Production environment"
-
+      
       - name: Deploy to Production (cPanel)
         uses: SamKirkland/FTP-Deploy-Action@4.3.3
         with:
@@ -74,26 +96,3 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           server-dir: ${{ secrets.FTP_SERVER_DIR }}/
-
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Commit .cpanel.yml if not exists
-        run: |
-          if [ ! -f .cpanel.yml ]; then
-            echo "---
-            deployment:
-              tasks:
-                - export DEPLOYPATH=/home/electgcs/electronicdevices.co.za/production
-                - /bin/cp -R * $DEPLOYPATH" > .cpanel.yml
-            git config --local user.email "action@github.com"
-            git config --local user.name "GitHub Action"
-            git add .cpanel.yml
-            git commit -m "Add .cpanel.yml for cPanel deployment" || echo "No changes to commit"
-          fi
-
-      - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.ref }}
