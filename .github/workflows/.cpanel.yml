@@ -7,3 +7,7 @@ deployment:
   tasks:
     - export DEPLOYPATH=/home/electgcs/electronicdevices.co.za/production
     - /bin/cp -R . $DEPLOYPATH
+
+git add .cpanel.yml
+git commit -m "Add .cpanel.yml for cPanel deployment"
+git push origin main
