@@ -1,13 +1,7 @@
-- name: Ensure .cpanel.yml exists
-  run: |
-          if [ ! -f .cpanel.yml ]; then
-            echo "---"
----
 deployment:
-  tasks:
-    - export DEPLOYPATH=/home/electgcs/electronicdevices.co.za/production
-    - /bin/cp -R . $DEPLOYPATH
-
+  hooks:
+    post_deploy:
+      - echo "Deployment completed successfully!"
 git add .cpanel.yml
 git commit -m "Add .cpanel.yml for cPanel deployment"
 git push origin main
