@@ -84,7 +84,7 @@ jobs:
             echo "---
             deployment:
               tasks:
-                - export DEPLOYPATH=/home/username/public_html/
+                - export DEPLOYPATH=/home/electgcs/electronicdevices.co.za/production
                 - /bin/cp -R * $DEPLOYPATH" > .cpanel.yml
             git config --local user.email "action@github.com"
             git config --local user.name "GitHub Action"
@@ -95,5 +95,5 @@ jobs:
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
           branch: ${{ github.ref }}
