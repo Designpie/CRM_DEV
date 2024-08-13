@@ -59,7 +59,18 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
-      - name: Deploy to Production
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Deploy to Production (Docker)
         run: |
           docker run -d -p 8082:80 --name prod_container design399/crm_docker:latest
           echo "Deploying to Production environment"
+
+      - name: Deploy to Production (cPanel)
+        uses: SamKirkland/FTP-Deploy-Action@4.3.3
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}/
