@@ -59,18 +59,18 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Deploy to Production (Docker)
         run: |
           docker run -d -p 8082:80 --name prod_container design399/crm_docker:latest
           echo "Deploying to Production environment"
 
       - name: Deploy to Production (cPanel)
-        uses: mdallasanta/ssh-scp-deploy@v1.2.0
+        uses: SamKirkland/FTP-Deploy-Action@4.3.3
         with:
-          host: ${{ secrets.REMOTE_HOST }}
-          port: 24
+          server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.CPANEL_USERNAME }}
           password: ${{ secrets.CPANEL_PASSWORD }}
-          remote_path: '/home/${{ secrets.CPANEL_USERNAME }}/public_html/'
-          scp_options: '-r'
-          ssh_options: '-o StrictHostKeyChecking=no'
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}
