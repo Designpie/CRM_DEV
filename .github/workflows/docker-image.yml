@@ -45,6 +45,8 @@ jobs:
         run: |
           if [ ! -f .cpanel.yml ]; then
             echo "---
+
+---
 deployment:
   tasks:
     - export DEPLOYPATH=/home/username/public_html/
