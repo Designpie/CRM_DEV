@@ -59,22 +59,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Deploy to Production (Docker)
+      - name: Deploy to Production
         run: |
           docker run -d -p 8082:80 --name prod_container design399/crm_docker:latest
           echo "Deploying to Production environment"
-
-      # Try FTPS explicit
-      - name: Deploy to Production (FTPS explicit)
-        uses: SamKirkland/FTP-Deploy-Action@4.3.3
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.CPANEL_USERNAME }}
-          password: ${{ secrets.CPANEL_PASSWORD }}
-          server-dir: ${{ secrets.FTP_SERVER_DIR }}/
-          protocol: ftps
-          port: 24  # or 990 for some hosts
-        
