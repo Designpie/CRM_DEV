@@ -1,0 +1,9 @@
+- name: Ensure .cpanel.yml exists
+  run: |
+          if [ ! -f .cpanel.yml ]; then
+            echo "---"
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/electgcs/electronicdevices.co.za/production
+    - /bin/cp -R . $DEPLOYPATH
