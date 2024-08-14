@@ -1,30 +1,33 @@
-# Use the official PHP image as a base image
-FROM php:8.1-apache
+FROM php:7.4-apache
 
-# Install dependencies and PHP extensions
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    libonig-dev \
-    libxml2-dev \
-    git \
-    unzip \
-    && docker-php-ext-install mbstring xml
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    zip \
+    unzip
 
-# Install Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+# Clear cache
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Copy application source code to the container
-COPY . /var/www/html/
+# Install PHP extensions
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
-# Set the working directory
-WORKDIR /var/www/html/
+# Enable Apache modules
+RUN a2enmod rewrite
 
-# Install Composer dependencies if composer.json exists
-RUN if [ -f "composer.json" ]; then composer install --no-dev --optimize-autoloader; fi
+# Set working directory
+WORKDIR /var/www/html
 
-# Set proper permissions
-RUN chown -R www-data:www-data /var/www/html
+# Copy application files
+COPY . /var/www/html
 
-# Expose the default port
+# Set permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html
+
+# Expose port 80
 EXPOSE 80
 
 # Start Apache
