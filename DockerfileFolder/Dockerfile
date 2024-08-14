@@ -24,21 +24,13 @@ RUN a2enmod rewrite
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy application files
-COPY . /var/www/html
+# Create a simple index.php file
+RUN echo '<?php echo "Hello World from Docker!"; ?>' > /var/www/html/index.php
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
-# List contents of build context
-RUN ls -la
-
-# Copy all files
-COPY . /var/www/html/
-
-# List contents of destination
-RUN ls -la /var/www/html/
 # Expose port 80
 EXPOSE 80
 
