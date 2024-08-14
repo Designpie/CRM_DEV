@@ -31,6 +31,15 @@ COPY . /var/www/html
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
+    # Copy index.php explicitly
+COPY index.php /var/www/html/index.php
+
+# Set correct permissions
+RUN chown www-data:www-data /var/www/html/index.php && chmod 644 /var/www/html/index.php
+
+# Make sure the directory has correct permissions
+RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
+
 # Expose port 80
 EXPOSE 80
 
