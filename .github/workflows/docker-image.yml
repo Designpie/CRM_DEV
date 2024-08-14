@@ -1,14 +1,12 @@
 name: Docker CI/CD
-
 on:
   push:
     branches: [ "main" ]
-
 permissions:
   contents: read
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -33,45 +31,37 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v4
       with:
-        context: ./DockerfileFolder
-        file: ./DockerfileFolder/Dockerfile
+        context: .
+        file: ./Dockerfile
         push: true
         tags: design399/crm_docker:latest
-
-  deploy-dev:
-    needs: build
-    runs-on: ubuntu-latest
-    environment: dev
-    steps:
-      - name: Deploy to Dev
-        run: |
-          docker run -d -p 8080:80 --name dev_container design399/crm_docker:latest
-          echo "Deploying to Dev environment"
-
-  deploy-qa:
-    needs: deploy-dev
-    runs-on: ubuntu-latest
-    environment: qa
-    steps:
-      - name: Deploy to Q/A
-        run: |
-          docker run -d -p 8081:80 --name qa_container design399/crm_docker:latest
-          echo "Deploying to Q/A environment"
-
-  deploy-prod:
-    needs: deploy-qa
-    runs-on: ubuntu-latest
-    environment: production
-    steps:
-      - name: Deploy to Production (Docker)
-        run: |
-          docker run -d -p 8082:80 --name prod_container design399/crm_docker:latest
-          echo "Deploying to Production environment"
-      
-      - name: Deploy to Production (cPanel)
-        uses: SamKirkland/FTP-Deploy-Action@4.3.3
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: ${{ secrets.FTP_SERVER_DIR }}/
+    
+    - name: Deploy to Dev
+      run: |
+        echo "Deploying to Dev environment"
+        docker stop dev_container || true
+        docker rm dev_container || true
+        docker run -d -p 8080:80 --name dev_container design399/crm_docker:latest
+    
+    - name: Deploy to Q/A
+      run: |
+        echo "Deploying to Q/A environment"
+        docker stop qa_container || true
+        docker rm qa_container || true
+        docker run -d -p 8081:80 --name qa_container design399/crm_docker:latest
+    
+    - name: Deploy to Production (Docker)
+      run: |
+        echo "Deploying to Production environment"
+        docker stop prod_container || true
+        docker rm prod_container || true
+        docker run -d -p 8082:80 --name prod_container design399/crm_docker:latest
+    
+    - name: Deploy to Production (cPanel)
+      uses: SamKirkland/FTP-Deploy-Action@4.3.3
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        server-dir: ${{ secrets.FTP_SERVER_DIR }}/
+        local-dir: ./
