@@ -43,7 +43,7 @@ jobs:
         run: |
           docker stop dev_container || true
           docker rm dev_container || true
-          docker run -d -p 8080:80 --name dev_container design399/crm_docker:latest
+          docker run -d -p 24:80 --name dev_container design399/crm_docker:latest
           echo "Deployed to Dev environment"
   deploy-qa:
     needs: deploy-dev
@@ -54,7 +54,7 @@ jobs:
         run: |
           docker stop qa_container || true
           docker rm qa_container || true
-          docker run -d -p 8081:80 --name qa_container design399/crm_docker:latest
+          docker run -d -p 24:80 --name qa_container design399/crm_docker:latest
           echo "Deployed to Q/A environment"
   deploy-prod:
     needs: deploy-qa
@@ -65,7 +65,7 @@ jobs:
         run: |
           docker stop prod_container || true
           docker rm prod_container || true
-          docker run -d -p 8082:80 --name prod_container design399/crm_docker:latest
+          docker run -d -p 24:80 --name prod_container design399/crm_docker:latest
           echo "Deployed to Production environment (Docker)"
       
       - name: Deploy to Production (cPanel)
