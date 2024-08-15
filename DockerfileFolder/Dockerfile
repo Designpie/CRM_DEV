@@ -34,5 +34,8 @@ RUN chown -R www-data:www-data /var/www/html \
 # Expose port 80
 EXPOSE 80
 
+# Update Apache configuration to listen on port 80
+RUN sed -i 's/Listen 80/Listen 80/' /etc/apache2/ports.conf
+
 # Start Apache
 CMD ["apache2-foreground"]
