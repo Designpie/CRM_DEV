@@ -2,7 +2,7 @@ name: Build, Push, Pull, and Deploy Docker image to Docker Hub
 on:
   push:
     branches:
-      - main
+      - development
 jobs:
   build:
     runs-on: ubuntu-latest
