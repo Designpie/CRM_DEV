@@ -1,39 +1,39 @@
-name: Build, Push, Pull, and Deploy Docker image to Docker Hub
+name: Docker CI/CD
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
+permissions:
+  contents: read
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        
-      - name: Set up PHP
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y php php-cli php-mbstring php-xml
-      - name: Create tests directory and file
-        run: |
-          mkdir -p tests
-          echo "<?php echo 'Test running successfully';" > tests/test.php
-      - name: Run tests
-        run: php tests/test.php
-      
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v4
-        with:
-          context: DockerfileFolder/
-          push: true
-          tags: design399/crm_docker:latest
-
+    - uses: actions/checkout@v3
+    
+    - name: Set up PHP
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y php php-cli php-mbstring php-xml
+    
+    - name: Run tests
+      run: |
+        mkdir -p tests
+        echo "<?php echo 'Test running successfully';" > tests/test.php
+        php tests/test.php
+    
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: ./DockerfileFolder
+        file: ./DockerfileFolder/Dockerfile
+        push: true
+        tags: design399/crm_docker:latest
   deploy-dev:
     needs: build
     runs-on: ubuntu-latest
@@ -41,9 +41,10 @@ jobs:
     steps:
       - name: Deploy to Dev
         run: |
-          docker run -d -p 8080:80 --name dev_container design399/crm_docker:latest
-          echo "Deploying to Dev environment"
-
+          docker stop dev_container || true
+          docker rm dev_container || true
+          docker run -d -p 24:80 --name dev_container design399/crm_docker:latest
+          echo "Deployed to Dev environment"
   deploy-qa:
     needs: deploy-dev
     runs-on: ubuntu-latest
@@ -51,15 +52,26 @@ jobs:
     steps:
       - name: Deploy to Q/A
         run: |
-          docker run -d -p 8081:80 --name qa_container design399/crm_docker:latest
-          echo "Deploying to Q/A environment"
-
+          docker stop qa_container || true
+          docker rm qa_container || true
+          docker run -d -p 24:80 --name qa_container design399/crm_docker:latest
+          echo "Deployed to Q/A environment"
   deploy-prod:
     needs: deploy-qa
     runs-on: ubuntu-latest
     environment: production
     steps:
-      - name: Deploy to Production
+      - name: Deploy to Production (Docker)
         run: |
-          docker run -d -p 8082:80 --name prod_container design399/crm_docker:latest
-          echo "Deploying to Production environment"
+          docker stop prod_container || true
+          docker rm prod_container || true
+          docker run -d -p 24:80 --name prod_container design399/crm_docker:latest
+          echo "Deployed to Production environment (Docker)"
+      
+      - name: Deploy to Production (cPanel)
+        uses: SamKirkland/FTP-Deploy-Action@4.3.3
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ secrets.FTP_SERVER_DIR }}/
