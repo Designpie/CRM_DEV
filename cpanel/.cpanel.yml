@@ -4,4 +4,7 @@ deployment:
     - export DEPLOYPATH=/home/electgcs/electronicdevices.co.za/production
     - /bin/cp index.html $DEPLOYPATH
     - /bin/cp style.css $DEPLOYPATH
+    - /bin/cp -R images $DEPLOYPATH
+
+
 
