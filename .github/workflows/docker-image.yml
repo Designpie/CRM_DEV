@@ -35,7 +35,7 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v4
       with:
-        context: DockerfileFolder/
+        context: .
         file: ./Dockerfile
         push: true
         tags: design399/crm_docker:latest
