@@ -1,12 +1,17 @@
 name: Docker CI/CD
+
 on:
   push:
     branches: [ "main" ]
+
 permissions:
   contents: read
+
 jobs:
+
   build:
     runs-on: ubuntu-latest
+
     steps:
     - uses: actions/checkout@v3
     
@@ -30,10 +35,18 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v4
       with:
-        context: ./DockerfileFolder
-        file: ./DockerfileFolder/Dockerfile
+        context: .
+        file: ./Dockerfile
         push: true
         tags: design399/crm_docker:latest
+        
+    - name: Copy HTML, CSS, and JS files
+      run: |
+        mkdir -p DockerfileFolder
+        cp index.html DockerfileFolder/
+        cp style.css DockerfileFolder/
+        cp script.js DockerfileFolder/
+
   deploy-dev:
     needs: build
     runs-on: ubuntu-latest
@@ -45,6 +58,7 @@ jobs:
           docker rm dev_container || true
           docker run -d -p 24:80 --name dev_container design399/crm_docker:latest
           echo "Deployed to Dev environment"
+
   deploy-qa:
     needs: deploy-dev
     runs-on: ubuntu-latest
@@ -56,6 +70,7 @@ jobs:
           docker rm qa_container || true
           docker run -d -p 24:80 --name qa_container design399/crm_docker:latest
           echo "Deployed to Q/A environment"
+
   deploy-prod:
     needs: deploy-qa
     runs-on: ubuntu-latest
