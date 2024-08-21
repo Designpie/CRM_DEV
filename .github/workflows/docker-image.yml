@@ -35,15 +35,10 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v4
       with:
-        context: DockerfileFolder/
+        context: .
+        file: ./Dockerfile
         push: true
         tags: design399/crm_docker:latest
-        
-    - name: Copy HTML, CSS, and JS files
-      run: |
-        cp index.html Dockerfile
-        cp style.css Dockerfile
-        cp script.js Dockerfile
 
   deploy-dev:
     needs: build
