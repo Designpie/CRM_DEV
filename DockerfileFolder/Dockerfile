@@ -24,8 +24,10 @@ RUN a2enmod rewrite
 # Set working directory
 WORKDIR /var/www/html
 
-# Create a simple index.php file
-RUN echo '<?php echo "Hello World from Docker!"; ?>' > /var/www/html/index.php
+# Copy HTML, CSS, and JavaScript files
+COPY DockerfileFolder/index.html /var/www/html/index.html
+COPY DockerfileFolder/style.css /var/www/html/style.css
+COPY DockerfileFolder/script.js /var/www/html/script.js
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
