@@ -25,9 +25,9 @@ RUN a2enmod rewrite
 WORKDIR /var/www/html
 
 # Copy HTML, CSS, and JavaScript files
-COPY DockerfileFolder/index.html /var/www/html/index.html
-COPY DockerfileFolder/style.css /var/www/html/style.css
-COPY DockerfileFolder/script.js /var/www/html/script.js
+COPY index.html /var/www/html/index.html
+COPY style.css /var/www/html/style.css
+COPY script.js /var/www/html/script.js
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
