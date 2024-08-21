@@ -36,10 +36,10 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         context: .
-        file: ./Dockerfile
+        file: Dockerfile
         push: true
         tags: design399/crm_docker:latest
-
+        
   deploy-dev:
     needs: build
     runs-on: ubuntu-latest
