@@ -36,7 +36,6 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         context: DockerfileFolder/
-        file: Dockerfile
         push: true
         tags: design399/crm_docker:latest
         
