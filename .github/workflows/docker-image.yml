@@ -1,24 +1,21 @@
 name: Docker CI/CD
-
 on:
   push:
     branches: [ "main" ]
-
 permissions:
   contents: read
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Set up PHP
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y php php-cli php-mbstring php-xml
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+        extensions: mbstring, xml
     
     - name: Run tests
       run: |
@@ -37,8 +34,18 @@ jobs:
       with:
         context: DockerfileFolder/
         push: true
-        tags: design399/crm_docker:latest
+        tags: design399/crm_docker:${{ github.sha }}
         
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: 'design399/crm_docker:${{ github.sha }}'
+        format: 'table'
+        exit-code: '1'
+        ignore-unfixed: true
+        vuln-type: 'os,library'
+        severity: 'CRITICAL,HIGH'
+
   deploy-dev:
     needs: build
     runs-on: ubuntu-latest
@@ -48,7 +55,7 @@ jobs:
         run: |
           docker stop dev_container || true
           docker rm dev_container || true
-          docker run -d -p 24:80 --name dev_container design399/crm_docker:latest
+          docker run -d --user 1000:1000 -p 127.0.0.1:8080:80 --name dev_container --health-cmd="curl -f http://localhost/ || exit 1" --health-interval=5m --health-retries=3 design399/crm_docker:${{ github.sha }}
           echo "Deployed to Dev environment"
 
   deploy-qa:
@@ -60,7 +67,7 @@ jobs:
         run: |
           docker stop qa_container || true
           docker rm qa_container || true
-          docker run -d -p 24:80 --name qa_container design399/crm_docker:latest
+          docker run -d --user 1000:1000 -p 127.0.0.1:8081:80 --name qa_container --health-cmd="curl -f http://localhost/ || exit 1" --health-interval=5m --health-retries=3 design399/crm_docker:${{ github.sha }}
           echo "Deployed to Q/A environment"
 
   deploy-prod:
@@ -72,7 +79,7 @@ jobs:
         run: |
           docker stop prod_container || true
           docker rm prod_container || true
-          docker run -d -p 24:80 --name prod_container design399/crm_docker:latest
+          docker run -d --user 1000:1000 -p 127.0.0.1:8082:80 --name prod_container --health-cmd="curl -f http://localhost/ || exit 1" --health-interval=5m --health-retries=3 design399/crm_docker:${{ github.sha }}
           echo "Deployed to Production environment (Docker)"
       
       - name: Deploy to Production (cPanel)
