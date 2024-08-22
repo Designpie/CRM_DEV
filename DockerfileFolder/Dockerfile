@@ -1,17 +1,17 @@
-# Use a slim, recent PHP version
-FROM php:8.2-apache-bullseye-slim
+# Use the latest PHP 8.2 Apache image based on Debian Bullseye
+FROM php:8.2-apache-bullseye
 
 # Create a non-root user
 RUN groupadd -r appuser && useradd -r -g appuser appuser
 
-# Install system dependencies with specific versions
+# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpng-dev=1.6.37-3 \
-    libjpeg-dev=1:2.0.6-4 \
-    libfreetype6-dev=2.10.4+dfsg-1+deb11u1 \
-    libzip-dev=1.7.3-1+b1 \
-    libonig-dev=6.9.6-1.1 \
-    libxml2-dev=2.9.10+dfsg-6.7+deb11u3 \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libzip-dev \
+    libonig-dev \
+    libxml2-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Configure and install PHP extensions
