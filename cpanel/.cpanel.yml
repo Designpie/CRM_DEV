@@ -1,8 +1,0 @@
----
-deployment:
-  tasks:
-    - export DEPLOYPATH=/home/electgcs/public_html/my_app
-    - /bin/cp chatbot.html $DEPLOYPATH
-    - /bin/cp index.php $DEPLOYPATH
-    - /bin/cp style.css $DEPLOYPATH
-    - /bin/cp -R images $DEPLOYPATH
