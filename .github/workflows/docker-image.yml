@@ -33,6 +33,7 @@ jobs:
         ignore-unfixed: true
         vuln-type: 'os,library'
         severity: 'CRITICAL,HIGH'
+
   deploy-dev:
     needs: build
     runs-on: ubuntu-latest
@@ -44,6 +45,7 @@ jobs:
           docker rm dev_container || true
           docker run -d --user appuser -p 127.0.0.1:8080:8080 --name dev_container --health-cmd="curl -f http://localhost:8080/ || exit 1" --health-interval=5m --health-retries=3 design399/crm_docker:${{ github.sha }}
           echo "Deployed to Dev environment"
+
   deploy-qa:
     needs: deploy-dev
     runs-on: ubuntu-latest
@@ -55,6 +57,7 @@ jobs:
           docker rm qa_container || true
           docker run -d --user appuser -p 127.0.0.1:8081:8080 --name qa_container --health-cmd="curl -f http://localhost:8080/ || exit 1" --health-interval=5m --health-retries=3 design399/crm_docker:${{ github.sha }}
           echo "Deployed to Q/A environment"
+
   deploy-prod:
    needs: deploy-qa
    runs-on: ubuntu-latest
@@ -74,5 +77,5 @@ jobs:
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         server-dir: ${{ secrets.FTP_SERVER_DIR }}/
-        port: 21  # Standard FTP port, change if your host uses a different port
-        protocol: ftps  # Use FTPS for secure transfer
+        port: 21
+        protocol: ftps
