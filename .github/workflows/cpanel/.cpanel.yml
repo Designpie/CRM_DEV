@@ -1,0 +1,5 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/electgcs/public_html/my_app
+    - /bin/cp -R * $DEPLOYPATH
