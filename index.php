@@ -1,3 +1,3 @@
 <?php
-echo <h1>"Hello World from my Docker container!";</h1>
+echo "Hello World from my Docker container!";
 ?>
