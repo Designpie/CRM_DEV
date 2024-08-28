@@ -1,3 +1,5 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:9a6622762f3383a657aeaf584b14c3ed938e2eecc5a82527dc87d5652b3a68c9
-size 114
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/electgcs/public_html/my_app
+    - /bin/cp -R * $DEPLOYPATH
