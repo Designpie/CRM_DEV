@@ -1,5 +1,3 @@
----
-deployment:
-  tasks:
-    - export DEPLOYPATH=/home/electgcs/public_html/my_app
-    - /bin/cp -R * $DEPLOYPATH
+version https://git-lfs.github.com/spec/v1
+oid sha256:2722e2397b8bf299196ae11cfe972ca89c3ff77a8377d258e7fc27329fe6dba7
+size 119
