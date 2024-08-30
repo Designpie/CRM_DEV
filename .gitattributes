@@ -1,3 +1,7 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:45376caf71cc25464224ed80d19e35f7b1a79374811964e0822dc33bfeb438c7
-size 284
+# Configure Git LFS for all files over 150 MB
+*.[!.][!.][!.]* filter=lfs diff=lfs merge=lfs -text size=150MB
+
+# Specific file types always handled by Git LFS
+*.psd filter=lfs diff=lfs merge=lfs -text
+*.zip filter=lfs diff=lfs merge=lfs -text
+*.mp4 filter=lfs diff=lfs merge=lfs -text
