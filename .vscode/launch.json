@@ -1,3 +1,14 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:461189b7695174d28b35f4e1116339c4ef8851baf6556e1223ae864664c06484
-size 472
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Open chatbot.html",
+            "file": "c:\\Users\\Q\\Documents\\GitHub\\CRM_DEV\\chatbot.html"
+        }
+    ]
+}
