@@ -1,4 +1,4 @@
-# Use the latest PHP 8.2 Apache image based on Debian Bullseye
+# Use PHP 8.2 Apache image based on Debian Bullseye
 FROM php:8.2-apache-bullseye
 
 # Create a non-root user
@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libzip-dev \
     libonig-dev \
     libxml2-dev \
+    mariadb-client \
     && rm -rf /var/lib/apt/lists/*
 
 # Configure and install PHP extensions
@@ -23,7 +24,9 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
         pcntl \
         bcmath \
         gd \
-        zip
+        zip \
+        intl \
+        calendar
 
 # Enable Apache modules
 RUN a2enmod rewrite ssl headers
@@ -31,12 +34,13 @@ RUN a2enmod rewrite ssl headers
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy application files
-COPY --chown=appuser:appuser index.html style.css script.js ./
+# Download and extract Dolibarr
+RUN curl -L https://github.com/Dolibarr/dolibarr/archive/refs/tags/16.0.4.tar.gz | tar xz --strip-components=1
 
 # Set permissions
 RUN chown -R appuser:appuser /var/www/html \
-    && chmod -R 755 /var/www/html
+    && chmod -R 755 /var/www/html \
+    && chmod 777 /var/www/html/documents
 
 # Configure PHP for better security
 RUN { \
