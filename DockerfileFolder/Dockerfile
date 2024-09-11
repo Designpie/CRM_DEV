@@ -13,7 +13,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libonig-dev \
     libxml2-dev \
     mariadb-client \
-    patch \
     && rm -rf /var/lib/apt/lists/*
 
 # Configure and install PHP extensions
