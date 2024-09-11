@@ -40,7 +40,9 @@ RUN curl -L https://github.com/Dolibarr/dolibarr/archive/refs/tags/16.0.4.tar.gz
 
 # Copy and apply security patch
 COPY dolibarr-stripe.patch /tmp/
-RUN patch -p0 < /tmp/dolibarr-stripe.patch
+
+# Verify patch file and apply with -p1 to strip htdocs
+RUN patch -p1 < /tmp/dolibarr-stripe.patch
 
 # Create necessary directories
 RUN mkdir -p /var/www/html/documents \
