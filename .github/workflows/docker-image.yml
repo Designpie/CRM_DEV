@@ -1,4 +1,4 @@
-name: Docker CI/CD
+name: Dolibarr CI/CD
 on:
   push:
     branches: [ "main" ]
@@ -20,14 +20,14 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v4
       with:
-        context: DockerfileFolder/
+        context: .
         push: true
-        tags: design399/crm_docker:${{ github.sha }}
+        tags: design399/dolibarr:${{ github.sha }}
         
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: 'design399/crm_docker:${{ github.sha }}'
+        image-ref: 'design399/dolibarr:${{ github.sha }}'
         format: 'table'
         exit-code: '1'
         ignore-unfixed: true
@@ -41,9 +41,19 @@ jobs:
     steps:
       - name: Deploy to Dev
         run: |
-          docker stop dev_container || true
-          docker rm dev_container || true
-          docker run -d --user appuser -p 127.0.0.1:8080:8080 --name dev_container --health-cmd="curl -f http://localhost:8080/ || exit 1" --health-interval=5m --health-retries=3 design399/crm_docker:${{ github.sha }}
+          docker stop dev_dolibarr || true
+          docker rm dev_dolibarr || true
+          docker run -d --name dev_dolibarr \
+            -p 127.0.0.1:8080:8080 \
+            -e DOLI_DB_HOST=your_db_host \
+            -e DOLI_DB_USER=your_db_user \
+            -e DOLI_DB_PASSWORD=${{ secrets.DEV_DB_PASSWORD }} \
+            -e DOLI_DB_NAME=your_db_name \
+            -e DOLI_URL_ROOT=http://localhost:8080 \
+            --health-cmd="curl -f http://localhost:8080/ || exit 1" \
+            --health-interval=5m \
+            --health-retries=3 \
+            design399/dolibarr:${{ github.sha }}
           echo "Deployed to Dev environment"
 
   deploy-qa:
@@ -53,9 +63,19 @@ jobs:
     steps:
       - name: Deploy to Q/A
         run: |
-          docker stop qa_container || true
-          docker rm qa_container || true
-          docker run -d --user appuser -p 127.0.0.1:8081:8080 --name qa_container --health-cmd="curl -f http://localhost:8080/ || exit 1" --health-interval=5m --health-retries=3 design399/crm_docker:${{ github.sha }}
+          docker stop qa_dolibarr || true
+          docker rm qa_dolibarr || true
+          docker run -d --name qa_dolibarr \
+            -p 127.0.0.1:8081:8080 \
+            -e DOLI_DB_HOST=your_db_host \
+            -e DOLI_DB_USER=your_db_user \
+            -e DOLI_DB_PASSWORD=${{ secrets.QA_DB_PASSWORD }} \
+            -e DOLI_DB_NAME=your_db_name \
+            -e DOLI_URL_ROOT=http://localhost:8081 \
+            --health-cmd="curl -f http://localhost:8080/ || exit 1" \
+            --health-interval=5m \
+            --health-retries=3 \
+            design399/dolibarr:${{ github.sha }}
           echo "Deployed to Q/A environment"
 
   deploy-prod:
@@ -65,9 +85,19 @@ jobs:
    steps:
     - name: Deploy to Production (Docker)
       run: |
-        docker stop prod_container || true
-        docker rm prod_container || true
-        docker run -d --user appuser -p 127.0.0.1:8082:8080 --name prod_container --health-cmd="curl -f http://localhost:8080/ || exit 1" --health-interval=5m --health-retries=3 design399/crm_docker:${{ github.sha }}
+        docker stop prod_dolibarr || true
+        docker rm prod_dolibarr || true
+        docker run -d --name prod_dolibarr \
+          -p 127.0.0.1:8082:8080 \
+          -e DOLI_DB_HOST=your_db_host \
+          -e DOLI_DB_USER=your_db_user \
+          -e DOLI_DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }} \
+          -e DOLI_DB_NAME=your_db_name \
+          -e DOLI_URL_ROOT=https://your-production-domain.com \
+          --health-cmd="curl -f http://localhost:8080/ || exit 1" \
+          --health-interval=5m \
+          --health-retries=3 \
+          design399/dolibarr:${{ github.sha }}
         echo "Deployed to Production environment (Docker)"
     
     - name: Deploy to Production (cPanel)
