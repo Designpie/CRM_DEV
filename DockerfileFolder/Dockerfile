@@ -37,10 +37,15 @@ WORKDIR /var/www/html
 # Download and extract Dolibarr
 RUN curl -L https://github.com/Dolibarr/dolibarr/archive/refs/tags/16.0.4.tar.gz | tar xz --strip-components=1
 
+# Create necessary directories
+RUN mkdir -p /var/www/html/documents \
+    && mkdir -p /var/www/html/conf
+
 # Set permissions
 RUN chown -R appuser:appuser /var/www/html \
     && chmod -R 755 /var/www/html \
-    && chmod 777 /var/www/html/documents
+    && chmod 777 /var/www/html/documents \
+    && chmod 777 /var/www/html/conf
 
 # Configure PHP for better security
 RUN { \
