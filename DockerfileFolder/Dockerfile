@@ -38,9 +38,9 @@ WORKDIR /var/www/html
 # Download and extract Dolibarr
 RUN curl -L https://github.com/Dolibarr/dolibarr/archive/refs/tags/16.0.4.tar.gz | tar xz --strip-components=1
 
-# Apply security patch
+# Copy and apply security patch
 COPY dolibarr-stripe.patch /tmp/
-RUN patch -p1 < /tmp/dolibarr-stripe.patch
+RUN patch -p1 -d /var/www/html < /tmp/dolibarr-stripe.patch
 
 # Create necessary directories
 RUN mkdir -p /var/www/html/documents \
