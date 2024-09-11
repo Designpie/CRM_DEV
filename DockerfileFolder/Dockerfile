@@ -38,11 +38,14 @@ WORKDIR /var/www/html
 # Download and extract Dolibarr
 RUN curl -L https://github.com/Dolibarr/dolibarr/archive/refs/tags/16.0.4.tar.gz | tar xz --strip-components=1
 
-# Copy and apply security patch
+# Copy the patch file
 COPY dolibarr-stripe.patch /tmp/
 
-# Verify patch file and apply with -p1 to strip htdocs
-RUN patch -p1 < /tmp/dolibarr-stripe.patch
+# Verify if the file exists
+RUN ls -la /var/www/html/stripe/admin/ && cat /var/www/html/stripe/admin/stripe.php
+
+# Apply patch with verbose output
+RUN patch -p1 -v < /tmp/dolibarr-stripe.patch
 
 # Create necessary directories
 RUN mkdir -p /var/www/html/documents \
