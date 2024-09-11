@@ -20,8 +20,7 @@ jobs:
     - name: Build and push Docker image
       uses: docker/build-push-action@v4
       with:
-        context: .
-        file: ./Dockerfile  # Specify the Dockerfile location
+        context: DockerfileFolder/
         push: true
         tags: design399/dolibarr:${{ github.sha }}
         
