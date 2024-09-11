@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libonig-dev \
     libxml2-dev \
     mariadb-client \
+    patch \
     && rm -rf /var/lib/apt/lists/*
 
 # Configure and install PHP extensions
@@ -36,6 +37,10 @@ WORKDIR /var/www/html
 
 # Download and extract Dolibarr
 RUN curl -L https://github.com/Dolibarr/dolibarr/archive/refs/tags/16.0.4.tar.gz | tar xz --strip-components=1
+
+# Apply security patch
+COPY dolibarr-stripe.patch /tmp/
+RUN patch -p1 < /tmp/dolibarr-stripe.patch
 
 # Create necessary directories
 RUN mkdir -p /var/www/html/documents \
