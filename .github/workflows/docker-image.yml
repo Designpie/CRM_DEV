@@ -30,7 +30,7 @@ jobs:
         tags: design399/dolibarr:${{ github.sha }},design399/dolibarr:latest
         
     - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@v0.11.0 # Use a stable release instead of master
+      uses: aquasecurity/trivy-action@v0.11.2 # Update to the latest stable version
       with:
         image-ref: 'design399/dolibarr:${{ github.sha }}'
         format: 'table'
